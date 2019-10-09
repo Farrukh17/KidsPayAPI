@@ -28,6 +28,7 @@ class School(models.Model):
         ('deactive', "Deactive"),
         ('stopped', "Stopped")
     )
+
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     directorName = models.CharField(max_length=100)
