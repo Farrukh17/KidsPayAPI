@@ -4,5 +4,5 @@ from . import views
 app_name = 'core'
 
 urlpatterns = [
-    path('^/api/getChildInfo/$', views.get_child_info)
+    path('getChildInfo/', views.get_child_info)
 ]

@@ -10,7 +10,7 @@ admin.site.register(App)
 @admin.register(Child)
 class ChildAdmin(admin.ModelAdmin):
     list_display = ('firstName', 'lastName', 'debt')
-    exclude = ('id', 'school')
+    # exclude = ('id', 'school')
     list_filter = ('id', 'debt')
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'debt', 'id')
