@@ -1,9 +1,11 @@
 from django.db import models
 from django.utils.timezone import now
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Child(models.Model):
-    id = models.CharField(primary_key=True, max_length=7)
+    id = models.CharField(primary_key=True, max_length=9)
     firstName = models.CharField(max_length=30, verbose_name='Имя')
     middleName = models.CharField(max_length=30, blank=True)
     lastName = models.CharField(max_length=30, verbose_name='Фамилия')
@@ -13,7 +15,7 @@ class Child(models.Model):
     mother = models.CharField(max_length=100, blank=True, verbose_name='Мать')
     contactMother = models.CharField(max_length=12, blank=True, verbose_name='Контактный телефон матери')
     monthlyFee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Ежемесячный взнос')
-    agreementNumber = models.CharField(max_length=20, default='Номер и дата договора')
+    agreementNumber = models.CharField(max_length=20, verbose_name='Номер и дата договора')
     birthCertificateNumber = models.CharField(max_length=20, default='', verbose_name='Номер свидетельства о рождении')
     school = models.ForeignKey('School', on_delete=models.CASCADE, null=True, verbose_name='Детский садик')
     group = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, verbose_name='Группа')
@@ -30,10 +32,10 @@ class Child(models.Model):
 class School(models.Model):
     STATUSES = (
         ('active', "Active"),
-        ('deactive', "Deactive"),
+        ('inactive', "Inactive"),
         ('stopped', "Stopped")
     )
-    id = models.IntegerField(primary_key=True)
+    id = models.CharField(max_length=4, primary_key=True)
     name = models.CharField(max_length=100, verbose_name='Детский садик')
     directorName = models.CharField(max_length=100, verbose_name='Ф.И.О. директора')
     contactDirector = models.CharField(max_length=12, verbose_name='Контактный номер директора')
@@ -46,28 +48,32 @@ class School(models.Model):
         verbose_name_plural = 'Детский садики'
 
     def __str__(self):
-        return '{fN}'.format(fN=self.name)
+        return '{name}'.format(name=self.name)
+
+    def clean(self):
+        try:
+            n = str(int(School.objects.latest('id').id) + 1)
+            self.id = n.zfill(4)
+        except ObjectDoesNotExist:
+            self.id = '0001'
 
 
 class Group(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30, verbose_name='Название группы')
-    fee = models.DecimalField(max_digits=12, decimal_places=2,default=0.00, verbose_name='Ежемесячный взнос')
+    fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Ежемесячный взнос')
     maxNumberOfChild = models.SmallIntegerField(blank=True, default=10, verbose_name='Максимальное количество детей')
-    subGroup = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Номер группы')
     school = models.ForeignKey(School, on_delete=models.CASCADE, verbose_name='Детский садик')
 
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
 
-
     def __str__(self):
-        return '{fN}'.format(fN=self.name)
+        return '{name}'.format(name=self.name)
 
 
 class App(models.Model):
-
     STATUSES = (
         ('active', "Active"),
         ('inactive', "Inactive"),
@@ -84,4 +90,15 @@ class App(models.Model):
         verbose_name_plural = 'Приложения'
 
     def __str__(self):
-        return '{fN}'.format(fN=self.name)
+        return '{name}'.format(name=self.name)
+
+
+class Admin(AbstractUser):
+    ADMIN_TYPES = (
+        ('superuser', 'SuperUser'),
+        ('admin', 'Admin'),
+        ('director', 'Director'),
+        ('accountant', 'Accountant')
+    )
+    type = models.CharField(choices=ADMIN_TYPES, default=ADMIN_TYPES[1], max_length=12)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)

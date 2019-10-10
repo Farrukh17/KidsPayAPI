@@ -25,4 +25,4 @@ class Transaction(models.Model):
         verbose_name_plural = 'Платежи'
 
     def __str__(self):
-        return '{fN} {s}'  .format(fN=self.child, s=self.amount)
+        return '{child} {amount} {month}'  .format(child=self.child, amount=self.amount, month=self.paymentTime.strftime('%Y.%m.%d'))

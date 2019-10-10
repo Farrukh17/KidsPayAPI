@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # apps
-    'core',
-    'finance',
+    'core.apps.CoreConfig',
+    'finance.apps.FinanceConfig',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +147,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
+
+AUTH_USER_MODEL = 'core.Admin'

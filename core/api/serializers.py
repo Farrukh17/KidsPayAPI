@@ -3,7 +3,10 @@ from ..models import Child
 
 
 class ChildSerializer(serializers.ModelSerializer):
+    school = serializers.StringRelatedField()
+    group = serializers.StringRelatedField()
 
     class Meta:
         model = Child
-        fields = ['id', 'firstName', 'lastName']
+        fields = ['firstName', 'lastName', 'middleName', 'enteredDate', 'father', 'contactFather', 'mother',
+                  'contactMother', 'monthlyFee', 'agreementNumber', 'birthCertificateNumber', 'school', 'group', 'debt']
