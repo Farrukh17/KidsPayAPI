@@ -4,7 +4,7 @@ from .serializers import ChildSerializer
 
 
 class ChildListView(generics.ListAPIView):
-    queryset = Child.objects.all()
+    queryset = Child.objects.filter(group=1, school=12)
     serializer_class = ChildSerializer
 
 
