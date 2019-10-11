@@ -24,8 +24,10 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Child)
 class ChildAdmin(admin.ModelAdmin):
-    list_display = ('firstName', 'lastName', 'debt')
-    list_filter = ('id', 'debt')
+    list_display = ('child_number', 'firstName', 'lastName', 'group', 'debt')
+    list_filter = ('group', 'debt')
+    list_display_links = ['child_number', 'firstName', 'lastName']
+    exclude = ('id', 'child_number')
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'debt', 'id')
 
@@ -33,8 +35,22 @@ class ChildAdmin(admin.ModelAdmin):
 class SchoolAdmin(admin.ModelAdmin):
     exclude = ['id', ]
 
+#
+# class GroupAdminChangeForm(forms.ModelForm):
+#     class Meta:
+#         model = Group
+#         fields = ('-all', )
+#     # TODO filter groups by Director's school id
+#     # TODO when creating a group implicitly assign school from director/accountant's obj.school
+#     # TODO django admin site async change form field according to other field's value
+#
+
+
+class GroupAdmin(admin.ModelAdmin):
+    exclude = ['id', ]
+
 
 admin.site.register(Admin, CustomUserAdmin)
 admin.site.register(School, SchoolAdmin)
-admin.site.register(Group)
+admin.site.register(Group, GroupAdmin)
 admin.site.register(App)
