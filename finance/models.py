@@ -1,5 +1,5 @@
 from django.db import models
-from core.models import Child, App
+from core.models import Child, App, School
 from django.utils.timezone import localtime
 
 
@@ -19,6 +19,7 @@ class Transaction(models.Model):
     paymentMethod = models.CharField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[0], max_length=12, verbose_name='Метод оплаты')
     cheque = models.FileField(upload_to='cheques', blank=True, verbose_name='Чек')
     appType = models.ForeignKey(App, on_delete=models.CASCADE, verbose_name='Название приложение')
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='transactions', null=True)
 
     class Meta:
         verbose_name = 'Платеж'

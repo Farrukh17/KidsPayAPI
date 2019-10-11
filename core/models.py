@@ -105,6 +105,9 @@ class App(models.Model):
     def __str__(self):
         return '{name}'.format(name=self.name)
 
+    def clean(self):
+        self.id = App.objects.latest('id').id + 1
+
 
 class Admin(AbstractUser):
     ADMIN_TYPES = (
