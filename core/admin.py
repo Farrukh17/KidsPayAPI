@@ -43,6 +43,14 @@ class ChildAdmin(admin.ModelAdmin):
             return qs.filter(school=request.user.school)
         return None
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "group":
+            if request.user.is_superuser:
+                kwargs["queryset"] = Group.objects.all()
+            elif request.user.is_staff and request.user.is_authenticated:
+                kwargs["queryset"] = Group.objects.filter(school=request.user.school)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school

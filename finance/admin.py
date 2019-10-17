@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Transaction
+from core.models import Child
 from .list_filters import GroupsListFilter, ChildrenListFilter
 
 
@@ -8,7 +9,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ('child', 'amount', 'paymentTime', 'paymentMethod')
     list_filter = ('paymentMethod', GroupsListFilter, ChildrenListFilter)
     search_fields = ('child__firstName', 'child__lastName', 'child__middleName', 'amount', 'paymentTime')
-    raw_id_fields = ('child', )
+    autocomplete_fields = ('child',)
     exclude = ['school', ]
 
     def get_queryset(self, request):
@@ -23,3 +24,11 @@ class TransactionAdmin(admin.ModelAdmin):
         if not change:
             obj.school = request.user.school
         super().save_model(request, obj, form, change)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "group":
+            if request.user.is_staff and request.user.is_authenticated:
+                kwargs["queryset"] = Child.objects.filter(school=request.user.school)
+            elif request.user.is_superuser:
+                kwargs["queryset"] = Child.objects.all()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
