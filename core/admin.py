@@ -1,6 +1,7 @@
 import string
 import random
 from django.contrib import admin
+from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
@@ -8,6 +9,7 @@ from .models import Child, School, Group, App, Admin
 from .list_filters import GroupsListFilter, SchoolsListFilter
 
 admin.site.site_header = 'KidsPay'
+admin.site.unregister(DjangoAuthGroup)
 
 
 class CustomAdminChangeForm(UserChangeForm):
@@ -44,7 +46,7 @@ class ChildAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
-            super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 class SchoolAdmin(admin.ModelAdmin):
@@ -82,7 +84,7 @@ class GroupAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
-            super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 class AppAdmin(admin.ModelAdmin):
@@ -91,9 +93,9 @@ class AppAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not change:
-            password_characters = string.ascii_letters + string.digits + string.punctuation
-            obj.token = ''.join(random.choice(password_characters) for i in range(32))
-            super().save_model(request, obj, form, change)
+            token_characters = string.ascii_letters + string.digits + '!#$%&()*+,-:;<=>?@[]_{|}~'
+            obj.token = ''.join(random.choice(token_characters) for i in range(32))
+        super().save_model(request, obj, form, change)
 
 
 admin.site.register(Child, ChildAdmin)

@@ -31,9 +31,10 @@ class Child(models.Model):
 
     def clean(self):
         try:
-            n = str(int(Child.objects.filter(id__startswith=self.school.id+':').latest('id').id.split(':')[1]) + 1)
-            self.id = self.school.id + ':' + n.zfill(4)
-            self.child_number = n
+            if not self.id:
+                n = str(int(Child.objects.filter(id__startswith=self.school.id+':').latest('id').id.split(':')[1]) + 1)
+                self.id = self.school.id + ':' + n.zfill(4)
+                self.child_number = n
         except ObjectDoesNotExist:
             self.id = self.school.id + ':0001'
             self.child_number = '1'
@@ -62,8 +63,9 @@ class School(models.Model):
 
     def clean(self):
         try:
-            n = str(int(School.objects.latest('id').id) + 1)
-            self.id = n.zfill(5)
+            if not self.id:
+                n = str(int(School.objects.latest('id').id) + 1)
+                self.id = n.zfill(5)
         except ObjectDoesNotExist:
             self.id = '00001'
 
@@ -83,7 +85,8 @@ class Group(models.Model):
         return '{name}'.format(name=self.name)
 
     def clean(self):
-        self.id = Group.objects.latest('id').id + 1
+        if not self.id:
+            self.id = Group.objects.latest('id').id + 1
 
 
 class App(models.Model):
@@ -106,7 +109,8 @@ class App(models.Model):
         return '{name}'.format(name=self.name)
 
     def clean(self):
-        self.id = App.objects.latest('id').id + 1
+        if not self.id:
+            self.id = App.objects.latest('id').id + 1
 
 
 class Admin(AbstractUser):

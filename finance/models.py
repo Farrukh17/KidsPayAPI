@@ -5,10 +5,8 @@ from django.utils.timezone import localtime
 
 class Transaction(models.Model):
     PAYMENT_METHODS = (
-
         ('online', 'Online'),
         ('offline', 'Offline')
-
     )
     transactID = models.CharField(max_length=32, primary_key=True, verbose_name='Номер транзакции')
     child = models.ForeignKey(Child, on_delete=models.CASCADE, verbose_name='Ф.И.О. воспитанника')

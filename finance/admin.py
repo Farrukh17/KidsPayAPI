@@ -22,4 +22,4 @@ class TransactionAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
-            super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
