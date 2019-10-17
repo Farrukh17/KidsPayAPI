@@ -57,7 +57,6 @@ class SchoolAdmin(admin.ModelAdmin):
 #     class Meta:
 #         model = Group
 #         fields = ('-all', )
-#     # TODO django admin site async change form field according to other field's value
 #
 
 

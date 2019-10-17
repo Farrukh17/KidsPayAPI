@@ -1,0 +1,33 @@
+{% extends "admin/change_form.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static 'js/jquery.js' %}" type="application/javascript"></script>
+    <script src="{% static 'js/js.cookie.min.js' %}" type="application/javascript"></script>
+    <script type="text/javascript">
+        var csrftoken = Cookies.get('csrftoken');
+        function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+      $(document).ready(function() {
+        $('#id_group').change(function() {
+          $.ajax({
+            type: 'POST',
+            url: "{% url 'core:get_group_fee' %}",
+            data: {'group_id': $('#id_group').val()},
+            success: function(data, _status) {
+              $('#id_monthlyFee').val(data.group_fee);
+            },
+            dataType: "json"
+          });
+        });
+      });
+    </script>
+{% endblock %}
