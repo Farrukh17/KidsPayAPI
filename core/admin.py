@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
+from django.core.exceptions import ObjectDoesNotExist
 from .models import Child, School, Group, App, Admin
 from .list_filters import GroupsListFilter, SchoolsListFilter
 
@@ -55,6 +56,13 @@ class ChildAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
+            try:
+                n = str(int(Child.objects.filter(id__startswith=obj.school.id+':').latest('id').id.split(':')[1]) + 1)
+                obj.id = obj.school.id + ':' + n.zfill(4)
+                obj.child_number = n
+            except ObjectDoesNotExist:
+                obj.id = obj.school.id + ':0001'
+                obj.child_number = '1'
         super().save_model(request, obj, form, change)
 
 

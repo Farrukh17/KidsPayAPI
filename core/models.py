@@ -28,7 +28,7 @@ class Child(models.Model):
 
     def __str__(self):
         return '{fN} {mN} {lN}'.format(fN=self.firstName, mN=self.middleName, lN=self.lastName)
-
+    '''
     def clean(self):
         try:
             if not self.id:
@@ -38,6 +38,7 @@ class Child(models.Model):
         except ObjectDoesNotExist:
             self.id = self.school.id + ':0001'
             self.child_number = '1'
+    '''
 
 
 class School(models.Model):
