@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+''' 
+    A list of all the people who get code error notifications. When DEBUG=False and 
+    AdminEmailHandler is configured in LOGGING (done by default), Django emails these people the details of exceptions 
+    raised in the request/response cycle.
+'''
+ADMINS = [('Farrukh', 'fkhamidov@list.ru'), ('Umar', 'international-2014@mail.ru')]
 
 # Application definition
 
@@ -82,12 +88,19 @@ WSGI_APPLICATION = 'KidsPayAPI.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'kidspaydatabase',
+        'USER': 'kidspaydatabaseuser1',
+        'PASSWORD': 'kidspaydatabaseuser1pass',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -149,3 +162,5 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'core.Admin'
+
+FIRST_DAY_OF_WEEK = 1  # The value must be an integer from 0 to 6, where 0 means Sunday, 1 means Monday and so on.

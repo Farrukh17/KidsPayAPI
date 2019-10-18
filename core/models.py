@@ -51,7 +51,7 @@ class School(models.Model):
     directorName = models.CharField(max_length=100, verbose_name='Ф.И.О. директора')
     contactDirector = models.CharField(max_length=12, verbose_name='Контактный номер директора', help_text='Например: 998901234567')
     address = models.CharField(max_length=200, verbose_name='Адрес')
-    status = models.CharField(choices=STATUSES, default=STATUSES[0], max_length=12, verbose_name='Статус')
+    status = models.CharField(choices=STATUSES, default=STATUSES[0][0], max_length=12, verbose_name='Статус')
     agreementDocNumber = models.CharField(max_length=30, blank=True, verbose_name='Номер договора')
 
     class Meta:
@@ -99,7 +99,7 @@ class App(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=24, verbose_name='Название приложения')
     token = models.CharField(max_length=32, verbose_name='Токен')
-    status = models.CharField(choices=STATUSES, default=STATUSES[0], max_length=12, verbose_name='Статус')
+    status = models.CharField(choices=STATUSES, default=STATUSES[0][0], max_length=12, verbose_name='Статус')
 
     class Meta:
         verbose_name = 'Приложение'
@@ -120,5 +120,5 @@ class Admin(AbstractUser):
         ('director', 'Director'),
         ('accountant', 'Accountant')
     )
-    type = models.CharField(choices=ADMIN_TYPES, default=ADMIN_TYPES[1], max_length=12)
+    type = models.CharField(choices=ADMIN_TYPES, default=ADMIN_TYPES[1][0], max_length=12, blank=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)

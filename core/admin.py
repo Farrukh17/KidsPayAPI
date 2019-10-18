@@ -9,6 +9,7 @@ from .models import Child, School, Group, App, Admin
 from .list_filters import GroupsListFilter, SchoolsListFilter
 
 admin.site.site_header = 'KidsPay'
+admin.site.site_title = 'KidsPay'
 admin.site.unregister(DjangoAuthGroup)
 
 

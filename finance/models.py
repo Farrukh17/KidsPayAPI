@@ -14,7 +14,7 @@ class Transaction(models.Model):
     paymentTime = models.DateTimeField(default=localtime().now(), verbose_name='Время оплаты')
     terminal = models.CharField(max_length=32, verbose_name='Терминал')
     mfo = models.CharField(max_length=5, verbose_name='МФО банка')
-    paymentMethod = models.CharField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[0], max_length=12, verbose_name='Метод оплаты')
+    paymentMethod = models.CharField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[0][0], max_length=12, verbose_name='Метод оплаты')
     cheque = models.FileField(upload_to='cheques', blank=True, verbose_name='Чек')
     appType = models.ForeignKey(App, on_delete=models.CASCADE, verbose_name='Название приложение')
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='transactions', null=True)
