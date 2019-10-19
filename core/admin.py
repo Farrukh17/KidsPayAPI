@@ -21,7 +21,7 @@ class CustomAdminChangeForm(UserChangeForm):
 
 class CustomUserAdmin(UserAdmin):
     form = CustomAdminChangeForm
-
+    list_display = ('username', 'first_name', 'last_name', 'type', 'school')
     fieldsets = UserAdmin.fieldsets + (
             ('Management', {'fields': ('type', 'school')}),
     )
@@ -30,12 +30,12 @@ class CustomUserAdmin(UserAdmin):
 
 
 class ChildAdmin(admin.ModelAdmin):
-    list_display = ('child_number', 'firstName', 'lastName', 'group', 'debt')
+    list_display = ('firstName', 'lastName', 'group', 'balance','child_number')
     list_filter = (GroupsListFilter, )
-    list_display_links = ['child_number', 'firstName', 'lastName']
+    list_display_links = ['firstName', 'lastName']
     exclude = ('id', 'child_number', 'school')
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
-    ordering = ('monthlyFee', 'debt', 'id')
+    ordering = ('monthlyFee', 'balance', 'id')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

@@ -1,3 +1,4 @@
+from django.utils.formats import number_format
 from django.db import models
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
@@ -19,7 +20,7 @@ class Child(models.Model):
     agreementNumber = models.CharField(max_length=20, verbose_name='Номер и дата договора')
     birthCertificateNumber = models.CharField(max_length=20, default='', verbose_name='Номер свидетельства о рождении')
     school = models.ForeignKey('School', on_delete=models.CASCADE, null=True, verbose_name='Детский садик')
-    debt = models.DecimalField(max_digits=12, default=0.00, decimal_places=2, verbose_name='Задолженность')
+    balance = models.DecimalField(max_digits=12, default=0.00, decimal_places=2, verbose_name='Баланс')
     child_number = models.CharField(max_length=4, blank=True, null=True, verbose_name='Воспитанник ID')
 
     class Meta:
@@ -27,7 +28,23 @@ class Child(models.Model):
         verbose_name_plural = 'Воспитанники'
 
     def __str__(self):
-        return '{fN} {mN} {lN}'.format(fN=self.firstName, mN=self.middleName, lN=self.lastName)
+        return '{fN} {lN} {mN}'.format(fN=self.firstName, mN=self.middleName, lN=self.lastName).strip()
+
+    @property
+    def last_payment_date(self):
+        last_tr = self.transactions.latest('paymentTime')
+        if not last_tr:
+            return ''
+        else:
+            return last_tr.paymentTime.strftime('%d.%m.%Y')
+
+    @property
+    def last_payment_amount(self):
+        last_tr = self.transactions.latest('paymentTime')
+        if not last_tr:
+            return ''
+        else:
+            return str(number_format(last_tr.amount, 0)) + ' UZS'
     '''
     def clean(self):
         try:
@@ -54,6 +71,13 @@ class School(models.Model):
     address = models.CharField(max_length=200, verbose_name='Адрес')
     status = models.CharField(choices=STATUSES, default=STATUSES[0][0], max_length=12, verbose_name='Статус')
     agreementDocNumber = models.CharField(max_length=30, blank=True, verbose_name='Номер договора')
+    repaymentDate = models.SmallIntegerField(default=1, verbose_name='Дата перерасчета')
+
+    # TODO add the option to change the repayment date with appropriate calculations
+    # TODO allow to change the repayment date of the school only to superusers
+    # TODO according to the transactions calculate the balance of the specific child
+    # TODO if possible formatting the amount field
+    # TODO according to the token of the request, recognize which app is sending the payment info and authorization
 
     class Meta:
         verbose_name = 'Детский садик'

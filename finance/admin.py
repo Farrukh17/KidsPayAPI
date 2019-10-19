@@ -10,7 +10,8 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('paymentMethod', GroupsListFilter, ChildrenListFilter)
     search_fields = ('child__firstName', 'child__lastName', 'child__middleName', 'amount', 'paymentTime')
     autocomplete_fields = ('child',)
-    exclude = ['school', ]
+    exclude = ['school', 'paymentMethod', 'appType']
+    date_hierarchy = 'paymentTime'
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
