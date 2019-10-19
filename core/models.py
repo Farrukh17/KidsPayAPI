@@ -111,7 +111,10 @@ class Group(models.Model):
 
     def clean(self):
         if not self.id:
-            self.id = Group.objects.latest('id').id + 1
+            try:
+                self.id = Group.objects.latest('id').id + 1
+            except ObjectDoesNotExist:
+                self.id = 1
 
 
 class App(models.Model):
@@ -135,7 +138,10 @@ class App(models.Model):
 
     def clean(self):
         if not self.id:
-            self.id = App.objects.latest('id').id + 1
+            try:
+                self.id = App.objects.latest('id').id + 1
+            except ObjectDoesNotExist:
+                self.id = 1
 
 
 class Admin(AbstractUser):
