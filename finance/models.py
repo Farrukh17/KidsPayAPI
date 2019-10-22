@@ -12,7 +12,7 @@ class Transaction(models.Model):
     child = models.ForeignKey(Child, related_name='transactions', on_delete=models.CASCADE, verbose_name='Ф.И.О. воспитанника')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма оплаты')
     paymentTime = models.DateTimeField(default=localtime().now(), verbose_name='Время оплаты')
-    terminal = models.CharField(max_length=32, verbose_name='Терминал')
+    terminal = models.CharField(max_length=32, verbose_name='Терминал', blank=True, null=True)
     mfo = models.CharField(max_length=5, verbose_name='МФО банка')
     paymentMethod = models.CharField(choices=PAYMENT_METHODS, default=PAYMENT_METHODS[0][0], max_length=12, verbose_name='Метод оплаты', null=True)
     cheque = models.FileField(upload_to='cheques', null=True, verbose_name='Чек')

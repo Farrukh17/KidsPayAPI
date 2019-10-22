@@ -74,9 +74,7 @@ class School(models.Model):
     repaymentDate = models.SmallIntegerField(default=1, verbose_name='Дата перерасчета')
 
     # TODO add the option to change the repayment date with appropriate calculations
-    # TODO according to the transactions calculate the balance of the specific child
     # TODO if possible formatting the amount field
-    # TODO according to the token of the request, recognize which app is sending the payment info and authorization
 
     class Meta:
         verbose_name = 'Детский садик'

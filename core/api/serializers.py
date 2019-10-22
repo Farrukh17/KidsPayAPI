@@ -29,17 +29,3 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = ['transactID', 'amount', 'paymentTime', 'school', 'child', 'mfo', ]
 
-
-class TransactionsListSerializer(serializers.ModelSerializer):
-    transactions = TransactionSerializer(many=True)
-
-    # def create(self, validated_data):
-    #     transactions_data = validated_data.pop('transactions')
-    #     transaction_serializer = self.fields['transactions']
-    #
-    #     trs = transaction_serializer.create(transactions_data)
-    #     return trs
-
-    class Meta:
-        model = Transaction
-        fields = ['transactions']

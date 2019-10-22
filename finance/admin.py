@@ -6,7 +6,7 @@ from .list_filters import GroupsListFilter, ChildrenListFilter
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('child', 'amount', 'paymentTime', 'paymentMethod')
+    list_display = ('child', 'amount', 'paymentTime', 'paymentMethod', 'appType')
     list_filter = ('paymentMethod', GroupsListFilter, ChildrenListFilter)
     search_fields = ('child__firstName', 'child__lastName', 'child__middleName', 'amount', 'paymentTime')
     autocomplete_fields = ('child',)
