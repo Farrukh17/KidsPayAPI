@@ -29,13 +29,22 @@ class CustomUserAdmin(UserAdmin):
     list_filter = UserAdmin.list_filter + ('type', )
 
 
+class ChildForm(forms.ModelForm):
+    # monthlyFee = forms.CharField()
+
+    class Meta:
+        model = Child
+        exclude = ('id', 'child_number', 'school')
+        # widgets = {'monthlyFee': forms.TextInput(attrs={'data-mask': "000 000 000.00"})}
+
+
 class ChildAdmin(admin.ModelAdmin):
-    list_display = ('firstName', 'lastName', 'group', 'balance','child_number')
+    list_display = ('firstName', 'lastName', 'group', 'balance', 'child_number')
     list_filter = (GroupsListFilter, )
     list_display_links = ['firstName', 'lastName']
-    exclude = ('id', 'child_number', 'school')
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'balance', 'id')
+    # form = ChildForm
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

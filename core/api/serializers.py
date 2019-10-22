@@ -1,6 +1,7 @@
 from django.utils.formats import number_format
-from rest_framework import serializers
+from rest_framework import serializers, fields
 from ..models import Child
+from finance.models import Transaction
 
 
 class ChildSerializer(serializers.ModelSerializer):
@@ -21,3 +22,24 @@ class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = ['full_name', 'monthly_fee', 'group', 'last_payment_date', 'last_payment_amount', 'balance']
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ['transactID', 'amount', 'paymentTime', 'school', 'child', 'mfo', ]
+
+
+class TransactionsListSerializer(serializers.ModelSerializer):
+    transactions = TransactionSerializer(many=True)
+
+    # def create(self, validated_data):
+    #     transactions_data = validated_data.pop('transactions')
+    #     transaction_serializer = self.fields['transactions']
+    #
+    #     trs = transaction_serializer.create(transactions_data)
+    #     return trs
+
+    class Meta:
+        model = Transaction
+        fields = ['transactions']
