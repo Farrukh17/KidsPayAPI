@@ -44,7 +44,7 @@ class ChildAdmin(admin.ModelAdmin):
     list_display_links = ['firstName', 'lastName']
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'balance', 'id')
-    # form = ChildForm
+    form = ChildForm
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

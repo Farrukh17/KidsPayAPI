@@ -108,8 +108,9 @@ class TransactionsListCreate(generics.ListCreateAPIView):
             app = None
         except MultipleObjectsReturned:
             app = None
+
         if app:
-            serializer.save(appType=app.id)
+            serializer.save(appType=app)
         else:
             serializer.save()
 
