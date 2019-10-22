@@ -92,14 +92,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'kidspaydatabase',
-    #     'USER': 'kidspaydatabaseuser1',
-    #     'PASSWORD': 'kidspaydatabaseuser1pass',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '5432',
-    # }
 }
 
 # Password validation
@@ -167,3 +159,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'core.Admin'
 
 FIRST_DAY_OF_WEEK = 1  # The value must be an integer from 0 to 6, where 0 means Sunday, 1 means Monday and so on.
+try:
+    from .local_settings import *
+except ImportError:
+    raise ImportError("local settings not found")
