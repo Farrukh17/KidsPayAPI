@@ -4,14 +4,22 @@ from core.models import Child
 from .list_filters import GroupsListFilter, ChildrenListFilter
 
 
-@admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('child', 'amount', 'paymentTime', 'paymentMethod', 'appType')
+    def get_payment_method(self, obj):
+        if obj.paymentMethod == 'online':
+            return obj.appType
+        else:
+            return obj.paymentMethod
+
+    get_payment_method.short_description = 'МЕТОД ОПЛАТЫ'
+
+    list_display = ('child', 'amount', 'paymentTime', 'get_payment_method')
     list_filter = ('paymentMethod', GroupsListFilter, ChildrenListFilter)
     search_fields = ('child__firstName', 'child__lastName', 'child__middleName', 'amount', 'paymentTime')
     autocomplete_fields = ('child',)
     exclude = ['school', 'paymentMethod', 'appType']
     date_hierarchy = 'paymentTime'
+    readonly_fields = ['paymentMethod']
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -33,3 +41,6 @@ class TransactionAdmin(admin.ModelAdmin):
             elif request.user.is_superuser:
                 kwargs["queryset"] = Child.objects.all()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+admin.site.register(Transaction, TransactionAdmin)

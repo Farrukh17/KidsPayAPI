@@ -88,7 +88,7 @@ class TransactionsListCreate(generics.ListCreateAPIView):
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def perform_create(self, serializer):
-        transaction = serializer.save(appType=self.app)
+        transaction = serializer.save(appType=self.app, paymentMethod=Transaction.PAYMENT_METHODS[0][0])
         transaction.child.balance += transaction.amount
         transaction.child.save()
 
