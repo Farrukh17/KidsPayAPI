@@ -1,5 +1,8 @@
+APScheduler==3.6.1
 Django==2.2.6
 djangorestframework==3.10.3
 psycopg2==2.8.3
 pytz==2019.3
+six==1.12.0
 sqlparse==0.3.0
+tzlocal==2.0.0
