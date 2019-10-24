@@ -2,7 +2,8 @@ from django.utils.formats import number_format
 from django.db import models
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from core.signals import repayment_day_changed
 
 
 class Child(models.Model):
@@ -19,7 +20,7 @@ class Child(models.Model):
     monthlyFee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Ежемесячный взнос')
     agreementNumber = models.CharField(max_length=20, verbose_name='Номер и дата договора')
     birthCertificateNumber = models.CharField(max_length=20, default='', verbose_name='Номер свидетельства о рождении')
-    school = models.ForeignKey('School', on_delete=models.CASCADE, null=True, verbose_name='Детский садик')
+    school = models.ForeignKey('School', on_delete=models.CASCADE, related_name='children', null=True, verbose_name='Детский садик')
     balance = models.DecimalField(max_digits=12, default=0.00, decimal_places=2, verbose_name='Баланс')
     child_number = models.CharField(max_length=4, blank=True, null=True, verbose_name='Воспитанник ID')
 
@@ -45,17 +46,6 @@ class Child(models.Model):
             return ''
         else:
             return str(number_format(last_tr.amount, 0)) + ' UZS'
-    '''
-    def clean(self):
-        try:
-            if not self.id:
-                n = str(int(Child.objects.filter(id__startswith=self.school.id+':').latest('id').id.split(':')[1]) + 1)
-                self.id = self.school.id + ':' + n.zfill(4)
-                self.child_number = n
-        except ObjectDoesNotExist:
-            self.id = self.school.id + ':0001'
-            self.child_number = '1'
-    '''
 
 
 class School(models.Model):
@@ -82,6 +72,19 @@ class School(models.Model):
 
     def __str__(self):
         return '{name}'.format(name=self.name)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        try:
+            old_school = School.objects.get(id=self.id)
+            if old_school.repaymentDate != self.repaymentDate:
+                repayment_day_changed.send(sender=self.__class__, prev_repayment_date=old_school.repaymentDate,
+                                           new_repayment_date=self.repaymentDate, instance=self)
+        except ObjectDoesNotExist:
+            pass
+        except MultipleObjectsReturned:
+            pass
+
+        super(School, self).save()
 
     def clean(self):
         try:
