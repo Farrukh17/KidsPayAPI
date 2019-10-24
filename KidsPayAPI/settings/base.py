@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir))))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,12 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-''' 
-    A list of all the people who get code error notifications. When DEBUG=False and 
-    AdminEmailHandler is configured in LOGGING (done by default), Django emails these people the details of exceptions 
-    raised in the request/response cycle.
-'''
-ADMINS = [('Farrukh', 'fkhamidov@list.ru'), ('Umar', 'international-2014@mail.ru')]
 
 # Application definition
 
@@ -134,13 +129,13 @@ USE_THOUSAND_SEPARATOR = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR,  'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 STATICFILES_DIRS = [
     'assets',
 ]
 
-TEMPLATE_DIRS = os.path.join(BASE_DIR,  'templates'),
+TEMPLATE_DIRS = os.path.join(BASE_DIR, 'templates'),
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -160,8 +155,8 @@ AUTH_USER_MODEL = 'core.Admin'
 
 FIRST_DAY_OF_WEEK = 1  # The value must be an integer from 0 to 6, where 0 means Sunday, 1 means Monday and so on.
 
-try:
-    if not DEBUG:
-        from .local_settings import *
-except ImportError:
-    raise ImportError("local settings not found")
+# try:
+#     if not DEBUG:
+#         from KidsPayAPI.settings.local import *
+# except ImportError:
+#     raise ImportError("local settings not found")

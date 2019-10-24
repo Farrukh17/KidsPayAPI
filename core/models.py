@@ -63,7 +63,6 @@ class School(models.Model):
     agreementDocNumber = models.CharField(max_length=30, blank=True, verbose_name='Номер договора')
     repaymentDate = models.SmallIntegerField(default=1, verbose_name='Дата перерасчета')
 
-    # TODO add the option to change the repayment date with appropriate calculations
     # TODO if possible formatting the amount field
 
     class Meta:
