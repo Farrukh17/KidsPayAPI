@@ -1,9 +1,9 @@
 from __future__ import absolute_import, unicode_literals
 from django.contrib import admin
-from .models import Group,School
+from .models import Group, School
 
 
-class GroupsListFilter(admin.SimpleListFilter):
+class CoreGroupsListFilter(admin.SimpleListFilter):
     """
     This filter will always return a subset of the instances in a Model, either filtering by the
     user choice or by a default value.
@@ -16,6 +16,9 @@ class GroupsListFilter(admin.SimpleListFilter):
     parameter_name = 'group'
 
     default_value = None
+
+    # Custom attributes
+    related_filter_parameter = 'school'
 
     def lookups(self, request, model_admin):
         """
@@ -32,6 +35,9 @@ class GroupsListFilter(admin.SimpleListFilter):
             queryset = Group.objects.filter(school=request.user.school)
         else:
             queryset = None
+
+        if self.related_filter_parameter in request.GET:
+            queryset = queryset.filter(school=request.GET[self.related_filter_parameter])
 
         for group in queryset:
             list_of_group.append(

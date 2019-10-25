@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Child, School, Group, App, Admin
-from .list_filters import GroupsListFilter, SchoolsListFilter
+from .list_filters import CoreGroupsListFilter, SchoolsListFilter
 
 admin.site.site_header = 'KidsPay'
 admin.site.site_title = 'KidsPay'
@@ -40,7 +40,7 @@ class ChildForm(forms.ModelForm):
 
 class ChildAdmin(admin.ModelAdmin):
     list_display = ('firstName', 'lastName', 'group', 'balance', 'child_number')
-    list_filter = (GroupsListFilter, )
+    list_filter = (CoreGroupsListFilter, SchoolsListFilter)
     list_display_links = ['firstName', 'lastName']
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'balance', 'id')

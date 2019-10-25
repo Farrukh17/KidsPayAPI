@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Transaction
 from core.models import Child
-from .list_filters import GroupsListFilter, ChildrenListFilter
+from .list_filters import FinanceGroupsListFilter, ChildrenListFilter, SchoolsListFilter
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -14,7 +14,7 @@ class TransactionAdmin(admin.ModelAdmin):
     get_payment_method.short_description = 'МЕТОД ОПЛАТЫ'
 
     list_display = ('child', 'amount', 'paymentTime', 'get_payment_method')
-    list_filter = ('paymentMethod', GroupsListFilter, ChildrenListFilter)
+    list_filter = ('paymentMethod', SchoolsListFilter, FinanceGroupsListFilter, ChildrenListFilter)
     search_fields = ('child__firstName', 'child__lastName', 'child__middleName', 'amount', 'paymentTime')
     autocomplete_fields = ('child',)
     exclude = ['school', 'paymentMethod', 'appType']
