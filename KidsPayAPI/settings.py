@@ -154,3 +154,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'core.Admin'
 
 FIRST_DAY_OF_WEEK = 1  # The value must be an integer from 0 to 6, where 0 means Sunday, 1 means Monday and so on.
+
+try:
+    from .local_settings import *
+except ImportError:
+    raise ImportError("local_settings.py not found!")
