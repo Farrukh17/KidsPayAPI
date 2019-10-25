@@ -4,10 +4,16 @@
 __pycache__/
 *.py[cod]
 *$py.class
-finance/migrations/
-core/migrations/
+
 # C extensions
 *.so
+
+
+local_settings.py
+config/deploy/deploy.retry
+config/deploy/hosts/test
+config/deploy/hosts/prod
+
 
 # Distribution / packaging
 .Python

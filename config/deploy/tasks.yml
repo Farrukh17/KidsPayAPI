@@ -1,0 +1,26 @@
+---
+- name: "install requirements"
+  pip: 
+    requirements: "{{ ansistrano_release_path.stdout }}/requirements.txt"
+    virtualenv:  "{{ ansistrano_deploy_to }}/venv"
+    virtualenv_python: python3.6 
+
+- name: "Run migrations"
+  django_manage:
+    command: migrate
+    app_path: "{{ ansistrano_release_path.stdout }}"
+    virtualenv: "{{ ansistrano_deploy_to }}/venv"
+
+- name: "Collect static"
+  django_manage:
+    command: collectstatic
+    app_path: "{{ ansistrano_release_path.stdout }}"
+    virtualenv: "{{ ansistrano_deploy_to }}/venv"
+
+  #TODO Добавить команду для обновления фикстур
+
+- name: Restart service
+  become: true
+  supervisorctl:
+    name: "kidspay"
+    state: restarted
