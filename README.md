@@ -23,6 +23,9 @@
 
 Создайте файл с названием `prod` в дериктории KidsPayAPI/config/deploy/hosts/
 
+Внутри директории KidsPayAPI/config/deploy/ 
+cоздайте папку files_prod, внутри создайте `local_settings.py` это настройки для продакшн сервера
+
 Сконфигрируйте его по примеру prod.sample
 
 Отправьте измения в ветку `master`
