@@ -7,8 +7,8 @@ class FinanceConfig(AppConfig):
 
     def ready(self):
         try:
-            from paymentsScheduler import scheduler
-            scheduler.start()
+            from scheduler import paymentScheduler
+            paymentScheduler.start()
         except ImportError:
-            raise ImportError('Error in importing new_month_payment_calculate')
+            raise ImportError('Error in importing paymentScheduler')
 
