@@ -1,5 +1,5 @@
 
-DEBUG = False
+DEBUG = True
 
 '''
     A list of all the people who get code error notifications. When DEBUG=False and

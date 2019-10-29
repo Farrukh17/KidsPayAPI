@@ -52,7 +52,10 @@ class ChildDetail(generics.GenericAPIView):
         childID = str(request.data.get('childID', ''))
         schoolID = str(request.data.get('schoolID', ''))
 
-        check_request(request)
+        result = check_request(request)
+
+        if isinstance(result, Response):
+            return result
 
         if childID is not '' and schoolID is not '':
             id_child = schoolID.zfill(5) + ':' + childID.zfill(4)
@@ -72,7 +75,11 @@ class TransactionsListCreate(generics.ListCreateAPIView):
         return Transaction.objects.all()
 
     def post(self, request, *args, **kwargs):
-        self.app = check_request(request)
+        result = check_request(request)
+        if isinstance(result, Response):
+            return result
+        else:
+            self.app = check_request(request)
         return super(TransactionsListCreate, self).post(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):

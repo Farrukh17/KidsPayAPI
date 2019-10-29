@@ -1,6 +1,6 @@
 from django.utils.formats import number_format
 from django.db import models
-from django.utils.timezone import now
+from django.utils.timezone import localtime
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from core.signals import repayment_day_changed
@@ -12,7 +12,7 @@ class Child(models.Model):
     middleName = models.CharField(max_length=30, blank=True)
     lastName = models.CharField(max_length=30, verbose_name='Фамилия')
     group = models.ForeignKey('Group', related_name='children', on_delete=models.CASCADE, null=True, verbose_name='Группа')
-    enteredDate = models.DateField(default=now(), verbose_name='Дата вступления')
+    enteredDate = models.DateField(default=localtime().now, verbose_name='Дата вступления')
     father = models.CharField(max_length=100, blank=True, verbose_name='Отец')
     contactFather = models.CharField(max_length=12, blank=True, verbose_name='Контактный телефон отца')
     mother = models.CharField(max_length=100, blank=True, verbose_name='Мать')
