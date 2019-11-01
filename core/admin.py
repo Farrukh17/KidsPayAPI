@@ -118,7 +118,7 @@ class AppAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not change:
-            token_characters = string.ascii_letters + string.digits + '!#$%&()*+,-:;<=>?@[]_{|}~'
+            token_characters = string.ascii_letters + string.digits + '!#$%()*?@[]_{|}'
             obj.token = ''.join(random.choice(token_characters) for i in range(32))
         super().save_model(request, obj, form, change)
 

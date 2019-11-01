@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from ..models import Child, App
-from .serializers import ChildSerializer, TransactionSerializer
+from ..models import Child, App, School
+from .serializers import ChildSerializer, TransactionSerializer, SchoolSerializer
 from finance.models import Transaction
 
 
@@ -38,22 +38,55 @@ def check_request(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class ChildListView(generics.ListAPIView):
-    queryset = Child.objects.filter(group=1, school=12)
+class SchoolListView(generics.GenericAPIView):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+    permission_classes = [AllowAny, ]
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        result = check_request(request)
+        if isinstance(result, Response):
+            return result
+
+        schools = School.objects.filter(status=School.STATUSES[0][0])
+        schools_serializer = self.get_serializer(schools, many=True)
+
+        return Response(schools_serializer.data)
+
+
+class ChildListView(generics.GenericAPIView):
+    queryset = Child.objects.all()
     serializer_class = ChildSerializer
+    permission_classes = [AllowAny, ]
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        schoolID = str(request.data.get('schoolID', ''))
+
+        result = check_request(request)
+        if isinstance(result, Response):
+            return result
+
+        if schoolID is not '':
+            children = Child.objects.filter(school=schoolID.zfill(5))
+            children_serializer = self.get_serializer(children, many=True)
+            return Response(children_serializer.data)
+        else:
+            return Response({'error': 'Отсутвуют параметр "schoolID"'.format(schoolId=schoolID)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChildDetail(generics.GenericAPIView):
     queryset = Child.objects.all()
     serializer_class = ChildSerializer
     permission_classes = [AllowAny, ]
+    http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         childID = str(request.data.get('childID', ''))
         schoolID = str(request.data.get('schoolID', ''))
 
         result = check_request(request)
-
         if isinstance(result, Response):
             return result
 
@@ -69,6 +102,7 @@ class ChildDetail(generics.GenericAPIView):
 class TransactionsListCreate(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
     permission_classes = [AllowAny, ]
+    http_method_names = ['post']
 
     def get_queryset(self):
         # implement logic here

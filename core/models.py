@@ -47,8 +47,10 @@ class Child(models.Model):
         else:
             return str(number_format(last_tr.amount, 0)) + ' UZS'
 
+
 def get_logo_upload_folder(instance, filename):
     return 'logos/{school}/{filename}'.format(school=instance.name, filename=filename)
+
 
 class School(models.Model):
     STATUSES = (

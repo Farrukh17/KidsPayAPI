@@ -1,7 +1,19 @@
 from django.utils.formats import number_format
 from rest_framework import serializers, fields
-from ..models import Child
+from ..models import Child, School
 from finance.models import Transaction
+
+
+class SchoolSerializer(serializers.ModelSerializer):
+    id_school = serializers.SerializerMethodField('id_numberize')
+
+    def id_numberize(self, obj):
+        return int(obj.id)
+
+    class Meta:
+        model = School
+        fields = ['id_school', 'name', 'logo', 'bankAccount', 'taxNumber', 'mfo', 'directorName', 'contactDirector',
+                  'address']
 
 
 class ChildSerializer(serializers.ModelSerializer):
