@@ -47,6 +47,8 @@ class Child(models.Model):
         else:
             return str(number_format(last_tr.amount, 0)) + ' UZS'
 
+def get_logo_upload_folder(instance, filename):
+    return 'logos/{school}/{filename}'.format(school=instance.name, filename=filename)
 
 class School(models.Model):
     STATUSES = (
@@ -56,6 +58,10 @@ class School(models.Model):
     )
     id = models.CharField(max_length=5, primary_key=True)
     name = models.CharField(max_length=100, verbose_name='Детский садик')
+    logo = models.ImageField(upload_to=get_logo_upload_folder, verbose_name='Лого', null=True, blank=True, default='default_logo.png')
+    bankAccount = models.CharField(max_length=20, blank=True, null=True, verbose_name='Счет')
+    taxNumber = models.CharField(max_length=9, blank=True, null=True, verbose_name='ИНН')
+    mfo = models.CharField(max_length=5, blank=True, null=True, verbose_name='МФО Банка')
     directorName = models.CharField(max_length=100, verbose_name='Ф.И.О. директора')
     contactDirector = models.CharField(max_length=12, verbose_name='Контактный номер директора', help_text='Например: 998901234567')
     address = models.CharField(max_length=200, verbose_name='Адрес')

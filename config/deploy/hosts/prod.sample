@@ -1,5 +1,5 @@
 [prod]
-servier_api ansible_user=ssh_user ansible_ssh_pass=ssh_user_pass ansible_port=ssh_port ansible_become_password=user_password_for_sudo
+185.196.214.122 ansible_user=user ansible_ssh_pass=cKD5Mp2qtxpxzDsv ansible_port=30122 ansible_become_password=kidspay23
 
 
 

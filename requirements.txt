@@ -7,6 +7,7 @@ djangorestframework==3.10.3
 gunicorn==19.9.0
 Jinja2==2.10.3
 MarkupSafe==1.1.1
+Pillow==6.2.1
 psycopg2==2.8.3
 pycparser==2.19
 pytz==2019.3
