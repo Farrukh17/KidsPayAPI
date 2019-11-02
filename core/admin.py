@@ -6,6 +6,8 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
+
 from .models import Child, School, Group, App, Admin
 from .list_filters import CoreGroupsListFilter, SchoolsListFilter
 
@@ -77,6 +79,16 @@ class ChildAdmin(admin.ModelAdmin):
 
 class SchoolAdmin(admin.ModelAdmin):
     exclude = ['id', ]
+    readonly_fields = ['logo_preview']
+    list_display = ['name', 'address']
+
+    def logo_preview(self, obj):
+        return mark_safe('<img src="{url}" width="{width}" height={height} />'.format(
+            url=obj.logo.url,
+            width=obj.logo.width,
+            height=obj.logo.height,
+        )
+        )
 
 #
 # class GroupAdminChangeForm(forms.ModelForm):
@@ -88,6 +100,7 @@ class SchoolAdmin(admin.ModelAdmin):
 
 class GroupAdmin(admin.ModelAdmin):
     exclude = ['id', 'school']
+    list_display = ['name', 'fee', 'school']
     list_filter = [SchoolsListFilter, ]
 
     # def get_changeform_initial_data(self, request):
@@ -109,6 +122,10 @@ class GroupAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
+        else:
+            for child in obj.children.all():
+                child.monthlyFee = obj.fee
+                child.save()
         super().save_model(request, obj, form, change)
 
 

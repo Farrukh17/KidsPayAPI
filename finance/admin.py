@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Transaction
+from .models import Transaction, History
 from core.models import Child
-from .list_filters import FinanceGroupsListFilter, ChildrenListFilter, SchoolsListFilter
+from .list_filters import FinanceGroupsListFilter, ChildrenListFilter, SchoolsListFilter, GroupListFilter
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -43,4 +43,15 @@ class TransactionAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class HistoryAdmin(admin.ModelAdmin):
+    def group(self, obj):
+        return obj.child.group
+
+    list_display = ['date', 'child', 'debitAmount', 'group']
+    date_hierarchy = 'date'
+    search_fields = ['group', 'debitAmount', 'child__firstName', 'child__lastName', 'child__middleName']
+    list_filter = ('school__name', GroupListFilter, 'child')
+
+
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(History, HistoryAdmin)

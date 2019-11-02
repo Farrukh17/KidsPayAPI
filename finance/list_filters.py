@@ -172,3 +172,47 @@ class SchoolsListFilter(admin.SimpleListFilter):
             return queryset.filter(school=self.value())
         else:
             return queryset
+
+
+class GroupListFilter(admin.SimpleListFilter):
+    """
+    This filter is an example of how to combine two different Filters to work together.
+    """
+    # Human-readable title which will be displayed in the right admin sidebar just above the filter options.
+    title = 'Группы'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'group'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        list_of_groups = []
+        if request.user.is_superuser and request.user.is_authenticated:
+            queryset = Group.objects.order_by('school')
+        elif request.user.is_staff and request.user.is_authenticated:
+            queryset = Group.objects.filter(school=request.user.school).order_by('group')
+        else:
+            queryset = None
+
+        for group in queryset:
+            list_of_groups.append(
+                (str(group.id), group.__str__())
+            )
+        return sorted(list_of_groups, key=lambda tp: tp[1])
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # Compare the requested value to decide how to filter the queryset.
+        if self.value():
+            return queryset.filter(child__group=self.value())
+        return queryset

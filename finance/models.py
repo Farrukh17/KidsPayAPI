@@ -37,3 +37,14 @@ class Transaction(models.Model):
         self.paymentMethod = self.PAYMENT_METHODS[1][0]
         self.child.balance += self.amount
         self.child.save()
+
+
+class History(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='school_histories', verbose_name='Детский садик')
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='child_histories', verbose_name='Воспитанник')
+    debitAmount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Снятая сумма')
+    date = models.DateTimeField(default=localtime().now, verbose_name='Дата снятия')
+
+    class Meta:
+        verbose_name = 'История снятия ежемесячных взносов'
+        verbose_name_plural = 'Истории снятия ежемесячных взносов'

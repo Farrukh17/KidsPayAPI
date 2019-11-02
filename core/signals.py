@@ -30,14 +30,14 @@ def repayment_date_changed(sender, prev_repayment_date, new_repayment_date, inst
         child_daily_fee = child.monthlyFee / int(last_day_number)
 
         if prev_repayment_date < dt.day < new_repayment_date:  # 'MOVE FORWARD' covers scenarios: 1
-            diff = abs(new_repayment_date - prev_repayment_date) + 1
+            diff = abs(new_repayment_date - prev_repayment_date)
             remaining_amount = child.monthlyFee - diff * child_daily_fee
             child.balance += remaining_amount
             # no need to charge for new month, when 'new_repayment_date' comes it automatically charges
             child.save()
 
         elif prev_repayment_date < new_repayment_date < dt.day:  # 'MOVE FORWARD' covers scenarios: 2
-            diff = abs(new_repayment_date - prev_repayment_date) + 1
+            diff = abs(new_repayment_date - prev_repayment_date)
             remaining_amount = child.monthlyFee - diff * child_daily_fee
             child.balance += remaining_amount
             child.balance -= child.monthlyFee  # charge for new month, because 'new_repayment_date' has already passed
@@ -50,19 +50,19 @@ def repayment_date_changed(sender, prev_repayment_date, new_repayment_date, inst
             pass  # critical cases check scheduler work and analyze when it fires trigger
 
         elif dt.day < prev_repayment_date < new_repayment_date:  # 'MOVE FORWARD' covers scenarios: 5
-            diff = abs(new_repayment_date - prev_repayment_date) + 1
+            diff = abs(new_repayment_date - prev_repayment_date)
             child.balance -= diff * child_daily_fee
             # no need to charge for new month, when 'new_repayment_date' comes it automatically charges
             child.save()
 
         elif new_repayment_date < dt.day < prev_repayment_date:  # 'MOVE BACKWARD' covers scenarios: 6
-            diff = abs(prev_repayment_date - new_repayment_date) + 1
+            diff = abs(prev_repayment_date - new_repayment_date)
             remaining_amount = diff * child_daily_fee
             child.balance += remaining_amount
             child.balance -= child.monthlyFee  # charge for new month, because 'new_repayment_date' has already passed
             child.save()
         elif new_repayment_date < prev_repayment_date < dt.day:  # 'MOVE BACKWARD' covers scenarios: 7
-            diff = abs(prev_repayment_date - new_repayment_date) + 1
+            diff = abs(prev_repayment_date - new_repayment_date)
             remaining_amount = diff * child_daily_fee
             child.balance += remaining_amount
             # no need to charge for new month, because on 'prev_repayment_date' it already charged
@@ -72,7 +72,7 @@ def repayment_date_changed(sender, prev_repayment_date, new_repayment_date, inst
         elif prev_repayment_date > new_repayment_date == dt.day:  # 'MOVE BACKWARD' covers scenarios: 9
             pass  # critical
         elif dt.day < new_repayment_date < prev_repayment_date:  # 'MOVE BACKWARD' covers scenarios: 10
-            diff = abs(prev_repayment_date - new_repayment_date) + 1
+            diff = abs(prev_repayment_date - new_repayment_date)
             remaining_amount = diff * child_daily_fee
             child.balance += remaining_amount
             # no need to charge for new month, when 'new_repayment_date' comes it automatically charges

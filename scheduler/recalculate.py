@@ -1,6 +1,10 @@
 import datetime
 import calendar
 from core.models import School
+from finance.models import History
+
+import logging
+log = logging.getLogger(__name__)
 
 
 def recalculate_schools():
@@ -11,6 +15,8 @@ def recalculate_schools():
             for child in school.children.all():
                 child.balance -= child.monthlyFee
                 child.save()
+                log.info("Child balance after recalculations: {balance}".format(balance=child.balance))
+                History.objects.create(school=school, child=child, debitAmount=child.monthlyFee)
 
 
 
