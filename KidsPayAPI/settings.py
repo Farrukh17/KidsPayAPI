@@ -155,7 +155,7 @@ AUTH_USER_MODEL = 'core.Admin'
 
 FIRST_DAY_OF_WEEK = 1  # The value must be an integer from 0 to 6, where 0 means Sunday, 1 means Monday and so on.
 
-LOG_DIRS = BASE_DIR + '/logs/'
+LOG_DIRS = os.path.join(BASE_DIR, 'logs/')
 
 LOGGING = {
     'version': 1,
@@ -169,11 +169,13 @@ LOGGING = {
     'handlers': {
         'logfile': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(LOG_DIRS, 'core.log'),
-            'maxBytes': 50000,
-            'backupCount': 2,
-            'formatter': 'standard',
+            # 'maxBytes': 50000,
+            'when': 'MIDNIGHT',  # this specifies the interval
+            # 'interval': 1,  # defaults to 1, only necessary for other values
+            'backupCount': 10,  # how many backup file to keep, 10 days
+            'formatter': 'standard'
         },
         'console': {
             'level': 'INFO',
