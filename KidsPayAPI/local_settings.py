@@ -7,7 +7,7 @@ DEBUG = False
     AdminEmailHandler is configured in LOGGING (done by default), Django emails these people the details of exceptions 
     raised in the request/response cycle.
 '''
-ADMINS = [('Farrukh', 'fkhamidov@list.ru'), ('Umar', 'international-2014@mail.ru')]
+ADMINS = [('Farrukh', 'xamidovf@list.ru'), ('Umar', 'international-2014@mail.ru')]
 
 ALLOWED_HOSTS = ['185.196.214.122', 'kidspay.uz', 'localhost']
 
