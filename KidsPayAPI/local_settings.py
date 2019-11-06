@@ -18,7 +18,7 @@ DATABASES = {
         'USER': 'kidspay',
         'PASSWORD': 'kidspay23',
         'HOST': '127.0.0.1',
-        'PORT': '5452',
+        'PORT': '5432',
     }
 }
 
