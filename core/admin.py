@@ -2,7 +2,8 @@ import string
 import random
 from import_export import resources
 from import_export.fields import Field
-from import_export.admin import ExportActionModelAdmin
+from import_export.admin import ExportActionModelAdmin, ImportExportModelAdmin, ExportMixin
+from import_export.formats.base_formats import DEFAULT_FORMATS, XLS, XLSX
 from django.contrib import admin
 from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
@@ -44,6 +45,16 @@ class ChildForm(forms.ModelForm):
         # widgets = {'monthlyFee': forms.TextInput(attrs={'data-mask': "000 000 000.00"})}
 
 
+class ExportModelAdmin(ExportMixin, admin.ModelAdmin):
+    """
+    Subclass of ModelAdmin with import/export functionality.
+    """
+    formats = (
+        XLS,
+        XLSX,
+    )
+
+
 class ChildResource(resources.ModelResource):
     def dehydrate_full_name(self, child):
         return child.__str__()
@@ -73,7 +84,7 @@ class ChildResource(resources.ModelResource):
         fields = ['child_number', 'full_name', 'group', 'school', 'balance']
 
 
-class ChildAdmin(ExportActionModelAdmin):
+class ChildAdmin(ExportModelAdmin):
     list_display = ('firstName', 'lastName', 'group', 'balance', 'child_number')
     list_filter = (CoreGroupsListFilter, SchoolsListFilter)
     list_display_links = ['firstName', 'lastName']
