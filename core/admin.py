@@ -10,6 +10,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
+from django.utils.formats import number_format
 
 from .models import Child, School, Group, App, Admin
 from .list_filters import CoreGroupsListFilter, SchoolsListFilter
@@ -47,13 +48,29 @@ class ChildResource(resources.ModelResource):
     def dehydrate_full_name(self, child):
         return child.__str__()
 
+    def dehydrate_group(self, child):
+        return child.group
+
+    def dehydrate_school(self, child):
+        return child.school
+
+    def dehydrate_balance(self, child):
+        return number_format(child.balance, 0) + ' UZS'
+
+    def dehydrate_child_number(self, child):
+        return child.child_number
+
     full_name = Field(column_name='Полное имя')
+    group = Field(column_name='Группа')
+    school = Field(column_name='Детский садик')
+    child_number = Field(column_name='Воспитанник ID')
+    balance = Field(column_name='Баланс')
 
     class Meta:
         model = Child
-        import_id_fields = ['child_number']
-        export_order = ['child_number', 'full_name', 'group__name', 'school__name']
-        fields = ['child_number', 'full_name', 'group__name', 'school__name']
+        import_id_fields = ['id']
+        export_order = ['child_number', 'full_name', 'balance', 'group', 'school']
+        fields = ['child_number', 'full_name', 'group', 'school', 'balance']
 
 
 class ChildAdmin(ExportActionModelAdmin):
