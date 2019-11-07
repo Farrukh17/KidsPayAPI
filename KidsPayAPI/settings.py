@@ -202,7 +202,7 @@ LOGGING = {
     }
 }
 
-# try:
-#     from .local_settings import *
-# except ImportError:
-#     raise ImportError("local_settings.py not found!")
+try:
+    from .local_settings import *
+except ImportError:
+    raise ImportError("local_settings.py not found!")
