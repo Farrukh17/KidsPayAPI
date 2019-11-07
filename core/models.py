@@ -123,6 +123,11 @@ class Group(models.Model):
             except ObjectDoesNotExist:
                 self.id = 1
 
+# TODO all students should move to archive(custom delete)
+# TODO all groups should move to archive(all students in the group should also move to archive)
+# TODO static and media files ???
+# TODO export to XLS file in one button
+
 
 class App(models.Model):
     STATUSES = (
