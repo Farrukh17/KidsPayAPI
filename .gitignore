@@ -13,7 +13,7 @@ local_settings.py
 config/deploy/deploy.retry
 config/deploy/hosts/test
 config/deploy/hosts/prod
-
+media
 
 # Distribution / packaging
 .Python
