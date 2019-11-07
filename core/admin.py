@@ -1,5 +1,8 @@
 import string
 import random
+from import_export import resources
+from import_export.fields import Field
+from import_export.admin import ExportActionModelAdmin
 from django.contrib import admin
 from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
@@ -40,13 +43,27 @@ class ChildForm(forms.ModelForm):
         # widgets = {'monthlyFee': forms.TextInput(attrs={'data-mask': "000 000 000.00"})}
 
 
-class ChildAdmin(admin.ModelAdmin):
+class ChildResource(resources.ModelResource):
+    def dehydrate_full_name(self, child):
+        return child.__str__()
+
+    full_name = Field(column_name='Полное имя')
+
+    class Meta:
+        model = Child
+        import_id_fields = ['child_number']
+        export_order = ['child_number', 'full_name', 'group__name', 'school__name']
+        fields = ['child_number', 'full_name', 'group__name', 'school__name']
+
+
+class ChildAdmin(ExportActionModelAdmin):
     list_display = ('firstName', 'lastName', 'group', 'balance', 'child_number')
     list_filter = (CoreGroupsListFilter, SchoolsListFilter)
     list_display_links = ['firstName', 'lastName']
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'balance', 'id')
     form = ChildForm
+    resource_class = ChildResource
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

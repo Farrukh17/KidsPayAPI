@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # third parties
     'rest_framework',
+    'import_export',
 
     # apps
     'core.apps.CoreConfig',
@@ -201,7 +202,7 @@ LOGGING = {
     }
 }
 
-try:
-    from .local_settings import *
-except ImportError:
-    raise ImportError("local_settings.py not found!")
+# try:
+#     from .local_settings import *
+# except ImportError:
+#     raise ImportError("local_settings.py not found!")
