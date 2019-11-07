@@ -196,7 +196,7 @@ class GroupListFilter(admin.SimpleListFilter):
         if request.user.is_superuser and request.user.is_authenticated:
             queryset = Group.objects.order_by('school')
         elif request.user.is_staff and request.user.is_authenticated:
-            queryset = Group.objects.filter(school=request.user.school).order_by('group')
+            queryset = Group.objects.filter(school=request.user.school).order_by('-id')
         else:
             queryset = None
 

@@ -7,8 +7,9 @@ __pycache__/
 
 # C extensions
 *.so
+.DS_Store
 
-
+KidsPayAPI/local_settings.py
 local_settings.py
 config/deploy/deploy.retry
 config/deploy/hosts/test
