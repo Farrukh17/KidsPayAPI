@@ -7,6 +7,10 @@ from core.signals import repayment_day_changed
 
 
 class Child(models.Model):
+    CHILD_STATUSES = (
+        ('active', 'Active'),
+        ('deleted', 'Deleted')
+    )
     id = models.CharField(primary_key=True, max_length=10)
     firstName = models.CharField(max_length=30, verbose_name='Имя')
     middleName = models.CharField(max_length=30, blank=True)
@@ -22,7 +26,10 @@ class Child(models.Model):
     birthCertificateNumber = models.CharField(max_length=20, default='', verbose_name='Номер свидетельства о рождении')
     school = models.ForeignKey('School', on_delete=models.CASCADE, related_name='children', null=True, verbose_name='Детский садик')
     balance = models.DecimalField(max_digits=12, default=0.00, decimal_places=2, verbose_name='Баланс')
+    status = models.CharField(max_length=12, choices=CHILD_STATUSES, default=CHILD_STATUSES[0][0])
     child_number = models.CharField(max_length=4, blank=True, null=True, verbose_name='Воспитанник ID')
+    created_date = models.DateField(auto_now_add=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Воспитанник'
@@ -53,6 +60,7 @@ def get_logo_upload_folder(instance, filename):
 
 
 class School(models.Model):
+    DEFAULT_LOGO = 'default_logo.png'
     STATUSES = (
         ('active', "Active"),
         ('inactive', "Inactive"),
@@ -60,7 +68,7 @@ class School(models.Model):
     )
     id = models.CharField(max_length=5, primary_key=True)
     name = models.CharField(max_length=100, verbose_name='Детский садик')
-    logo = models.ImageField(upload_to=get_logo_upload_folder, verbose_name='Лого', null=True, blank=True, default='default_logo.png')
+    logo = models.ImageField(upload_to=get_logo_upload_folder, verbose_name='Лого', null=True, blank=True, default=DEFAULT_LOGO)
     bankAccount = models.CharField(max_length=20, verbose_name='Счет')
     taxNumber = models.CharField(max_length=9, verbose_name='ИНН')
     mfo = models.CharField(max_length=5, verbose_name='МФО Банка')
@@ -70,8 +78,8 @@ class School(models.Model):
     status = models.CharField(choices=STATUSES, default=STATUSES[0][0], max_length=12, verbose_name='Статус')
     agreementDocNumber = models.CharField(max_length=30, blank=True, verbose_name='Номер договора')
     repaymentDate = models.SmallIntegerField(default=1, verbose_name='Дата перерасчета')
-
-    # TODO if possible formatting the amount field
+    created_date = models.DateField(auto_now_add=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Детский садик'
@@ -91,7 +99,7 @@ class School(models.Model):
         except MultipleObjectsReturned:
             pass
 
-        super(School, self).save()
+        super(School, self).save(force_insert, force_update, using, update_fields)
 
     def clean(self):
         try:
@@ -103,15 +111,29 @@ class School(models.Model):
 
 
 class Group(models.Model):
+    GROUP_STATUSES = (
+        ('active', 'Active'),
+        ('deleted', 'Deleted')
+    )
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30, verbose_name='Название группы')
     fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Ежемесячный взнос')
     maxNumberOfChild = models.SmallIntegerField(blank=True, default=20, verbose_name='Максимальное количество детей')
     school = models.ForeignKey(School, on_delete=models.CASCADE, verbose_name='Детский садик')
+    status = models.CharField(max_length=12, choices=GROUP_STATUSES, default=GROUP_STATUSES[0][0])
+    created_date = models.DateField(auto_now_add=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
+        # default_permissions = ()
+        # permissions = (
+        #     ('add_core_group', 'Can add Группа'),
+        #     ('change_core_group', 'Can change Группа'),
+        #     ('delete_core_group', 'Can delete Группа'),
+        #     ('view_core_group', 'Can view Группа'),
+        # )
 
     def __str__(self):
         return '{name}'.format(name=self.name)
@@ -123,10 +145,8 @@ class Group(models.Model):
             except ObjectDoesNotExist:
                 self.id = 1
 
-# TODO all students should move to archive(custom delete)
-# TODO all groups should move to archive(all students in the group should also move to archive)
-# TODO static and media files ???
 # TODO export to XLS file in one button
+# TODO if possible formatting the amount field
 
 
 class App(models.Model):
@@ -140,6 +160,8 @@ class App(models.Model):
     name = models.CharField(max_length=24, verbose_name='Название приложения')
     token = models.CharField(max_length=32, verbose_name='Токен')
     status = models.CharField(choices=STATUSES, default=STATUSES[0][0], max_length=12, verbose_name='Статус')
+    created_date = models.DateField(auto_now_add=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Приложение'

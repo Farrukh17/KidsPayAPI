@@ -7,11 +7,12 @@ from import_export.formats.base_formats import DEFAULT_FORMATS, XLS, XLSX
 from django.contrib import admin
 from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.formats import number_format
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Child, School, Group, App, Admin
 from .list_filters import CoreGroupsListFilter, SchoolsListFilter
@@ -29,20 +30,49 @@ class CustomAdminChangeForm(UserChangeForm):
 class CustomUserAdmin(UserAdmin):
     form = CustomAdminChangeForm
     list_display = ('username', 'first_name', 'last_name', 'type', 'school')
-    fieldsets = UserAdmin.fieldsets + (
-            ('Management', {'fields': ('type', 'school')}),
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (_('Management'), {'fields': ('type', 'school')}),
     )
 
     list_filter = UserAdmin.list_filter + ('type', )
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        if db_field.name == 'user_permissions':
+            qs = kwargs.get('queryset', db_field.remote_field.model.objects)
+            qs = qs.exclude(codename__in=(
+                'add_permission',
+                'change_permission',
+                'delete_permission',
+                'view_permission',
 
-class ChildForm(forms.ModelForm):
-    # monthlyFee = forms.CharField()
+                'add_contenttype',
+                'change_contenttype',
+                'delete_contenttype',
+                'view_contenttype',
 
-    class Meta:
-        model = Child
-        exclude = ('id', 'child_number', 'school')
-        # widgets = {'monthlyFee': forms.TextInput(attrs={'data-mask': "000 000 000.00"})}
+                'add_session',
+                'delete_session',
+                'change_session',
+                'view_session',
+
+                'add_logentry',
+                'change_logentry',
+                'delete_logentry',
+                'view_logentry',
+
+                # 'add_group',
+                # 'change_group',
+                # 'delete_group',
+                # 'view_group',
+            ))
+            # Avoid a major performance hit resolving permission names which
+            # triggers a content_type load:
+            kwargs['queryset'] = qs.select_related('content_type')
+        return super(CustomUserAdmin, self).formfield_for_manytomany(db_field, request=request, **kwargs)
 
 
 class ExportModelAdmin(ExportMixin, admin.ModelAdmin):
@@ -86,19 +116,47 @@ class ChildResource(resources.ModelResource):
 
 class ChildAdmin(ExportModelAdmin):
     list_display = ('firstName', 'lastName', 'group', 'balance', 'child_number')
-    list_filter = (CoreGroupsListFilter, SchoolsListFilter)
+    list_filter = [SchoolsListFilter, CoreGroupsListFilter]
     list_display_links = ['firstName', 'lastName']
     search_fields = ('firstName', 'middleName', 'lastName', 'agreementNumber')
     ordering = ('monthlyFee', 'balance', 'id')
-    form = ChildForm
+    exclude = ['id', 'child_number', 'school']
     resource_class = ChildResource
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if request.user.is_superuser:
+            if 'status' in self.exclude:
+                self.exclude.remove('status')
+        else:
+            if 'status' not in self.exclude:
+                self.exclude.append('status')
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        if request.user.is_superuser:
+            if 'status' in self.exclude:
+                self.exclude.remove('status')
+        else:
+            if 'status' not in self.exclude:
+                self.exclude.append('status')
+        return super().add_view(request, form_url, extra_context)
+
+    def get_list_filter(self, request):
+        if request.user.is_superuser:
+            if 'status' not in self.list_filter:
+                self.list_filter.insert(0, 'status')
+        else:
+            if 'status' in self.list_filter:
+                self.list_filter.remove('status')
+
+        return self.list_filter
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser and request.user.is_authenticated:
             return qs
         if request.user.is_staff and request.user.is_authenticated:
-            return qs.filter(school=request.user.school)
+            return qs.filter(school=request.user.school, status=Child.CHILD_STATUSES[0][0])
         return None
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -106,7 +164,7 @@ class ChildAdmin(ExportModelAdmin):
             if request.user.is_superuser:
                 kwargs["queryset"] = Group.objects.all()
             elif request.user.is_staff and request.user.is_authenticated:
-                kwargs["queryset"] = Group.objects.filter(school=request.user.school)
+                kwargs["queryset"] = Group.objects.filter(school=request.user.school, status=Group.GROUP_STATUSES[0][0])
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
@@ -120,6 +178,15 @@ class ChildAdmin(ExportModelAdmin):
                 obj.id = obj.school.id + ':0001'
                 obj.child_number = '1'
         super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        obj.status = Child.CHILD_STATUSES[1][0]
+        obj.save()
+
+    def delete_queryset(self, request, queryset):
+        for child in queryset:
+            child.status = Child.CHILD_STATUSES[1][0]
+            child.save()
 
 
 class SchoolAdmin(admin.ModelAdmin):
@@ -135,12 +202,16 @@ class SchoolAdmin(admin.ModelAdmin):
         )
         )
 
-#
-# class GroupAdminChangeForm(forms.ModelForm):
-#     class Meta:
-#         model = Group
-#         fields = ('-all', )
-#
+    def delete_queryset(self, request, queryset):
+        for school in queryset:
+            if school.logo != School.DEFAULT_LOGO:
+                school.logo.delete()
+        super().delete_queryset(request, queryset)
+
+    def delete_model(self, request, obj):
+        if obj.logo != School.DEFAULT_LOGO:
+            obj.logo.delete()
+        super().delete_model(request, obj)
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -148,30 +219,65 @@ class GroupAdmin(admin.ModelAdmin):
     list_display = ['name', 'fee', 'school']
     list_filter = [SchoolsListFilter, ]
 
-    # def get_changeform_initial_data(self, request):
-    #     return {'school': request.user.school}
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if request.user.is_superuser:
+            if 'status' in self.exclude:
+                self.exclude.remove('status')
+        else:
+            if 'status' not in self.exclude:
+                self.exclude.append('status')
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        if request.user.is_superuser:
+            if 'status' in self.exclude:
+                self.exclude.remove('status')
+        else:
+            if 'status' not in self.exclude:
+                self.exclude.append('status')
+        return super().add_view(request, form_url, extra_context)
+
+    def get_list_filter(self, request):
+        if request.user.is_superuser:
+            if 'status' not in self.list_filter:
+                self.list_filter.append('status')
+        else:
+            if 'status' in self.list_filter:
+                self.list_filter.remove('status')
+
+        return self.list_filter
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser and request.user.is_authenticated:
             return qs
         if request.user.is_staff and request.user.is_authenticated:
-            return qs.filter(school=request.user.school)
+            return qs.filter(school=request.user.school, status=Group.GROUP_STATUSES[0][0])
         return None
-
-    # def add_view(self, request, form_url='', extra_context=None):
-    #     extra_context = extra_context or {}
-    #     extra_context['school'] = request.user.school.id
-    #     return super(GroupAdmin, self).add_view(request, extra_context=extra_context)
 
     def save_model(self, request, obj, form, change):
         if not change:
             obj.school = request.user.school
         else:
-            for child in obj.children.all():
+            for child in obj.children.filter(status=Child.CHILD_STATUSES[0][0]):
                 child.monthlyFee = obj.fee
                 child.save()
         super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        for child in obj.children.filter(status=Child.CHILD_STATUSES[0][0]):
+            child.status = Child.CHILD_STATUSES[1][0]
+            child.save()
+        obj.status = Group.GROUP_STATUSES[1][0]
+        obj.save()
+
+    def delete_queryset(self, request, queryset):
+        for group in queryset:
+            for child in group.children.filter(status=Child.CHILD_STATUSES[0][0]):
+                child.status = Child.CHILD_STATUSES[1][0]
+                child.save()
+            group.status = Group.GROUP_STATUSES[1][0]
+            group.save()
 
 
 class AppAdmin(admin.ModelAdmin):

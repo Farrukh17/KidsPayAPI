@@ -32,7 +32,7 @@ class CoreGroupsListFilter(admin.SimpleListFilter):
         if request.user.is_superuser and request.user.is_authenticated:
             queryset = Group.objects.all()
         elif request.user.is_staff and request.user.is_authenticated:
-            queryset = Group.objects.filter(school=request.user.school)
+            queryset = Group.objects.filter(school=request.user.school, status=Group.GROUP_STATUSES[0][0])
         else:
             queryset = None
 
@@ -56,22 +56,6 @@ class CoreGroupsListFilter(admin.SimpleListFilter):
             return queryset.filter(group=self.value())
         else:
             return queryset
-'''
-    def value(self):
-        """
-        Overriding this method will allow us to always have a default value.
-        """
-        value = super(GroupsListFilter, self).value()
-        if value is None:
-            if self.default_value is None:
-                # If there is at least one Group, return the first by name. Otherwise, None.
-                first_group = Group.objects.order_by('name').first()
-                value = None if first_group is None else first_group.id
-                self.default_value = value
-            else:
-                value = self.default_value
-        return str(value)
-'''
 
 
 class SchoolsListFilter(admin.SimpleListFilter):
@@ -98,7 +82,7 @@ class SchoolsListFilter(admin.SimpleListFilter):
         if request.user.is_superuser and request.user.is_authenticated:
             queryset = School.objects.all()
         elif request.user.is_staff and request.user.is_authenticated:
-            queryset = School.objects.filter(id=request.user.school.id)
+            queryset = School.objects.filter(id=request.user.school.id, status=School.STATUSES[0][0])
         else:
             queryset = None
 

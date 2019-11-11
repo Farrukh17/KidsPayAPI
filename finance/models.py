@@ -25,13 +25,15 @@ class Transaction(models.Model):
     cheque = models.FileField(upload_to=get_cheque_upload_folder, null=True, verbose_name='Чек')
     appType = models.ForeignKey(App, on_delete=models.CASCADE, verbose_name='Название приложение', null=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='transactions', null=True)
+    created_date = models.DateField(auto_now_add=True)
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Платеж'
         verbose_name_plural = 'Платежи'
 
     def __str__(self):
-        return '{child} - {amount} UZS - {month}'.format(child=self.child, amount=self.amount, month=self.paymentTime.strftime('%Y.%m.%d'))
+        return '{school} - {child} - {amount} UZS - {month}'.format(school=self.school, child=self.child, amount=self.amount, month=self.paymentTime.strftime('%Y.%m.%d'))
 
     def clean(self):
         self.paymentMethod = self.PAYMENT_METHODS[1][0]
@@ -44,7 +46,11 @@ class History(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='child_histories', verbose_name='Воспитанник')
     debitAmount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, verbose_name='Снятая сумма')
     date = models.DateTimeField(default=localtime().now, verbose_name='Дата снятия')
+    last_modified_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'История снятия ежемесячных взносов'
         verbose_name_plural = 'Истории снятия ежемесячных взносов'
+
+    def __str__(self):
+        return '{school} - {child} - {debitAmount} UZS - {date}'.format(school=self.school, child=self.child, debitAmount=self.debitAmount, date=self.date)
