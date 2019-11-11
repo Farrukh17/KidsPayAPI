@@ -22,6 +22,6 @@
         - {src: "local_settings.py", dest: "KidsPayAPI/local_settings.py"}
   post_tasks:
     - name: "Changing perm of pg_backup_rotated.sh, adding +x"
-        file: "dest=/var/www/kidspay/current/config/backup/pg_backup_rotated.sh mode=a+x"
+      file: "dest=/var/www/kidspay/current/config/backup/pg_backup_rotated.sh mode=a+x"
   roles:
     - {role: ansistrano.deploy}
