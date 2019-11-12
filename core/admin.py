@@ -7,12 +7,13 @@ from import_export.formats.base_formats import DEFAULT_FORMATS, XLS, XLSX
 from django.contrib import admin
 from django.contrib.auth.models import Group as DjangoAuthGroup
 from django import forms
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.formats import number_format
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Permission
 
 from .models import Child, School, Group, App, Admin
 from .list_filters import CoreGroupsListFilter, SchoolsListFilter
@@ -33,12 +34,77 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
+        # (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Management'), {'fields': ('type', 'school')}),
     )
 
     list_filter = UserAdmin.list_filter + ('type', )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        '''
+        ADMIN_TYPES
+        0 superuser
+        1 admin
+        2 director
+        3 accountant
+        '''
+        permissions_director = Permission.objects.filter(codename__in=['add_group', 'change_group', 'delete_group',
+                                                                       'view_group', 'add_child', 'change_child',
+                                                                       'delete_child', 'view_child', 'add_transaction',
+                                                                       'change_transaction', 'view_transaction',
+                                                                       'view_history'])
+        permissions_accountant = Permission.objects.filter(codename__in=['change_group', 'view_group', 'add_child',
+                                                                         'change_child', 'delete_child', 'view_child',
+                                                                         'add_transaction', 'change_transaction',
+                                                                         'view_transaction', 'view_history'])
+
+        if obj.type == Admin.ADMIN_TYPES[0][0]:
+            obj.is_active = True
+            obj.is_staff = True
+            obj.is_superuser = True
+            obj.user_permissions.clear()
+        elif obj.type == Admin.ADMIN_TYPES[1][0]:
+            obj.is_active = True
+            obj.is_staff = True
+            obj.is_superuser = False
+            obj.user_permissions.clear()
+        elif obj.type == Admin.ADMIN_TYPES[2][0]:
+            obj.is_active = True
+            obj.is_staff = True
+            obj.is_superuser = False
+            obj.user_permissions.clear()
+            obj.user_permissions.set(list(permissions_director))
+        elif obj.type == Admin.ADMIN_TYPES[3][0]:
+            obj.is_active = True
+            obj.is_staff = True
+            obj.is_superuser = False
+            obj.user_permissions.clear()
+            obj.user_permissions.set(list(permissions_accountant))
+        else:
+            obj.is_active = True
+
+        obj.save()
+
+        '''
+        add_group
+        change_group
+        delete_group
+        view_group
+        add_child
+        change_child
+        delete_child
+        view_child
+        add_transaction
+        change_transaction
+        delete_transaction
+        view_transaction
+        add_history
+        change_history
+        delete_history
+        view_history
+        '''
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == 'user_permissions':
