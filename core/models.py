@@ -13,7 +13,7 @@ class Child(models.Model):
     )
     id = models.CharField(primary_key=True, max_length=10)
     firstName = models.CharField(max_length=30, verbose_name='Имя')
-    middleName = models.CharField(max_length=30, blank=True)
+    middleName = models.CharField(max_length=30, blank=True, verbose_name='Отчество')
     lastName = models.CharField(max_length=30, verbose_name='Фамилия')
     group = models.ForeignKey('Group', related_name='children', on_delete=models.CASCADE, null=True, verbose_name='Группа')
     enteredDate = models.DateField(default=localtime().now, verbose_name='Дата вступления')
